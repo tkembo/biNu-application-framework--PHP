@@ -16,6 +16,12 @@
  * 
  * Please feel free to fork and improve this script, extend it's functionality, as well as adapt for different scripting languages
  * 
+ * CHANGELOG
+ * ----------------------
+ * Date: 2013-06-14 
+ * Contributor: Tawanda Kembo (use tkembo@gmail.com for suggestions / comments
+ * Contribution: Added support link support. Now you can add a link to your biNu app using the format: $binu_app->* * * add_link($url,$string,$style,$align,$x_pos,$y_pos,$mode); 
+ *
  */
 class biNu_app {
     /*
@@ -121,6 +127,11 @@ class biNu_app {
 	 * An array of text to display on the screen
 	 */
 	public $text_area = array();
+	
+	/*
+	 * An array of links to display on the screen
+	 */
+	public $link_area = array();
 	/*
 	 * An array of menus
 	 */
@@ -411,6 +422,18 @@ class biNu_app {
 			'mode' => $mode
 		);
 	}
+	
+	public function add_link( $url = '', $link_string = '', $link_style = '', $link_align = 'left', $x_pos = '0', $y_pos = 'y', $mode = 'wrap' ) {
+		$this->link_area[] = $link_array = array (
+			'url' => $url,
+			'link' => $link_string,
+			'style' => $link_style,
+			'align' => $link_align,
+			'x' => $x_pos,
+			'y' => $y_pos,
+			'mode' => $mode
+		);
+	}
 
 	private function get_text() {
 		if (count($this->text_area) > 0) {
@@ -423,6 +446,25 @@ class biNu_app {
 			$the_text_area .= '</pageSegment>'.PHP_EOL;
 
 			return trim($the_text_area);
+		} else {
+			return '';
+		}
+
+	}
+	
+	private function get_link() {
+		if (count($this->link_area) > 0) {
+			$the_link_area = '<pageSegment y="y">'.PHP_EOL;
+			$the_link_area .= '	<fixed>'.PHP_EOL;
+			foreach ($this->link_area as $link_section) {
+				$the_link_area .= '		<link url="'.$link_section['url'].'" x="5" y="y+5" w="width" mode="truncate" style="'.$link_section['style'].'" linkType="o">'.PHP_EOL;
+				$the_link_area .= '			<text  w="width-10" mode="wrap" style="'.$link_section['style'].'">'.$link_section['link'].'</text>'.PHP_EOL;		
+				$the_link_area .= '		</link>'.PHP_EOL;
+			}
+			$the_link_area .= '	</fixed>'.PHP_EOL;
+			$the_link_area .= '</pageSegment>'.PHP_EOL;
+
+			return trim($the_link_area);
 		} else {
 			return '';
 		}
@@ -637,6 +679,7 @@ class biNu_app {
 				$this->header_BML . PHP_EOL .
 				$this->body_BML . PHP_EOL .
 				$this->get_text() . PHP_EOL .
+				$this->get_link() . PHP_EOL .
 				$this->footer_BML . PHP_EOL .
 			'</page>' . PHP_EOL .
 				$this->get_actions() . PHP_EOL .
